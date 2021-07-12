@@ -1812,20 +1812,23 @@ impl DeviceRef {
     pub fn new_render_pipeline_state_with_reflection(
         &self,
         descriptor: &RenderPipelineDescriptorRef,
-        reflection: &RenderPipelineReflectionRef,
-    ) -> Result<RenderPipelineState, String> {
+    ) -> Result<(RenderPipelineState, RenderPipelineReflection), String> {
         unsafe {
             let reflection_options =
                 MTLPipelineOption::ArgumentInfo | MTLPipelineOption::BufferTypeInfo;
+            let mut reflection: *mut MTLRenderPipelineReflection = std::ptr::null_mut();
 
             let pipeline_state: *mut MTLRenderPipelineState = try_objc! { err =>
                 msg_send![self, newRenderPipelineStateWithDescriptor:descriptor
                                                              options:reflection_options
-                                                          reflection:reflection
+                                                          reflection:&mut reflection
                                                                error:&mut err]
             };
 
-            Ok(RenderPipelineState::from_ptr(pipeline_state))
+            let _: () = msg_send![reflection, retain];
+            let reflection = RenderPipelineReflection::from_ptr(reflection);
+
+            Ok((RenderPipelineState::from_ptr(pipeline_state), reflection))
         }
     }
 
@@ -1881,20 +1884,23 @@ impl DeviceRef {
     pub fn new_compute_pipeline_state_with_function_and_reflection(
         &self,
         function: &FunctionRef,
-        reflection: &ComputePipelineReflectionRef,
-    ) -> Result<ComputePipelineState, String> {
+    ) -> Result<(ComputePipelineState, ComputePipelineReflection), String> {
         unsafe {
             let reflection_options =
                 MTLPipelineOption::ArgumentInfo | MTLPipelineOption::BufferTypeInfo;
+            let mut reflection: *mut MTLComputePipelineReflection = std::ptr::null_mut();
 
             let pipeline_state: *mut MTLComputePipelineState = try_objc! { err =>
                 msg_send![self, newComputePipelineStateWithFunction:function
                                                              options:reflection_options
-                                                          reflection:reflection
+                                                          reflection:&mut reflection
                                                                error:&mut err]
             };
 
-            Ok(ComputePipelineState::from_ptr(pipeline_state))
+            let _: () = msg_send![reflection, retain];
+            let reflection = ComputePipelineReflection::from_ptr(reflection);
+
+            Ok((ComputePipelineState::from_ptr(pipeline_state), reflection))
         }
     }
 
@@ -1915,19 +1921,21 @@ impl DeviceRef {
     pub fn new_compute_pipeline_state_with_reflection(
         &self,
         descriptor: &ComputePipelineDescriptorRef,
-        reflection: &ComputePipelineReflectionRef,
-    ) -> Result<ComputePipelineState, String> {
+    ) -> Result<(ComputePipelineState, ComputePipelineReflection), String> {
         unsafe {
             let reflection_options =
                 MTLPipelineOption::ArgumentInfo | MTLPipelineOption::BufferTypeInfo;
+            let mut reflection: *mut MTLComputePipelineReflection = std::ptr::null_mut();
             let pipeline_state: *mut MTLComputePipelineState = try_objc! { err =>
                 msg_send![self, newComputePipelineStateWithDescriptor:descriptor
                                                              options:reflection_options
                                                           reflection:reflection
                                                                 error:&mut err]
             };
+            let _: () = msg_send![reflection, retain];
+            let reflection = ComputePipelineReflection::from_ptr(reflection);
 
-            Ok(ComputePipelineState::from_ptr(pipeline_state))
+            Ok((ComputePipelineState::from_ptr(pipeline_state), reflection))
         }
     }
 
