@@ -1878,6 +1878,26 @@ impl DeviceRef {
         }
     }
 
+    pub fn new_compute_pipeline_state_with_function_and_reflection(
+        &self,
+        function: &FunctionRef,
+        reflection: &ComputePipelineReflectionRef,
+    ) -> Result<ComputePipelineState, String> {
+        unsafe {
+            let reflection_options =
+                MTLPipelineOption::ArgumentInfo | MTLPipelineOption::BufferTypeInfo;
+
+            let pipeline_state: *mut MTLComputePipelineState = try_objc! { err =>
+                msg_send![self, newComputePipelineStateWithFunction:function
+                                                             options:reflection_options
+                                                          reflection:reflection
+                                                               error:&mut err]
+            };
+
+            Ok(ComputePipelineState::from_ptr(pipeline_state))
+        }
+    }
+
     pub fn new_compute_pipeline_state(
         &self,
         descriptor: &ComputePipelineDescriptorRef,
@@ -1885,6 +1905,25 @@ impl DeviceRef {
         unsafe {
             let pipeline_state: *mut MTLComputePipelineState = try_objc! { err =>
                 msg_send![self, newComputePipelineStateWithDescriptor:descriptor
+                                                                error:&mut err]
+            };
+
+            Ok(ComputePipelineState::from_ptr(pipeline_state))
+        }
+    }
+
+    pub fn new_compute_pipeline_state_with_reflection(
+        &self,
+        descriptor: &ComputePipelineDescriptorRef,
+        reflection: &ComputePipelineReflectionRef,
+    ) -> Result<ComputePipelineState, String> {
+        unsafe {
+            let reflection_options =
+                MTLPipelineOption::ArgumentInfo | MTLPipelineOption::BufferTypeInfo;
+            let pipeline_state: *mut MTLComputePipelineState = try_objc! { err =>
+                msg_send![self, newComputePipelineStateWithDescriptor:descriptor
+                                                             options:reflection_options
+                                                          reflection:reflection
                                                                 error:&mut err]
             };
 

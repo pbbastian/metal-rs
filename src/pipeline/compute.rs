@@ -486,3 +486,17 @@ impl BufferLayoutDescriptorRef {
         unsafe { msg_send![self, setStride: stride] }
     }
 }
+
+pub enum MTLComputePipelineReflection {}
+
+foreign_obj_type! {
+    type CType = MTLComputePipelineReflection;
+    pub struct ComputePipelineReflection;
+    pub struct ComputePipelineReflectionRef;
+}
+
+impl ComputePipelineReflectionRef {
+    pub fn arguments(&self) -> &Array<Argument> {
+        unsafe { msg_send![self, arguments] }
+    }
+}
