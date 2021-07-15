@@ -221,6 +221,17 @@ where
             msg_send![class, arrayWithObjects: s.as_ptr() count: s.len()]
         }
     }
+
+    pub fn iter(&self) -> impl Iterator<Item = &T::Ref> {
+        unsafe {
+            let count: NSUInteger = msg_send![self.0, count];
+            let array = self.0;
+            (0..count)
+                .map(move |i| {
+                    msg_send![array, objectAtIndex: i]
+                })
+        }
+    }
 }
 
 impl<T> foreign_types::ForeignType for Array<T>
